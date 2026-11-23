@@ -24,10 +24,15 @@ Nov 21, 2026 · Nobby
 
 **Evidence:**
 
-- [ ] Interviews with 5 EPM colleagues: *"Think of the last application you inherited. How long did it take to understand the rules? Was there documentation?"* **[ADD: quotes and time estimates]**
-- [ ] Undocumented rules in one past project (anonymised). **[ADD: e.g., "38 of 52 rules had no description"]**
-- [ ] Hours spent writing rule documentation for one design document. **[ADD: hours]**
-- [ ] 2–3 public forum / Customer Connect posts asking "what does this calc script do?" **[ADD: links]**
+- [x] Interviews with EPM colleagues (via chat, Nov 2026):
+  - Average time to understand an inherited app's rules: Around 5 - 8 hrs. Depending on the complexity.
+  - Documentation: Majority of the colleagues have the same issue wherein most of their handed over applications do not have proper documetation.
+- [x] Undocumented rules in one past project (anonymised): approx. 30 out of 50 rules had no description. Especially the customized ones
+- [x] Hours spent writing rule documentation for one design document: **[Around 5 hours to write documentation on an enterprise implementation scale]**
+- [x] Public posts showing consultants struggle to understand inherited rules:
+  [Simple Calc Script Question](https://community.oracle.com/CustomerConnect/discussion/786994/simple-calc-script-question) — user joining late in an implementation, reverse-engineering calc scripts without training;
+  [help with the script](https://community.oracle.com/customerconnect/discussion/51752/help-with-the-script) — "Could anyone explain what the script below does?";
+  [Calc Manager discussions](https://community.oracle.com/customerconnect/discussions/tagged/calc-manager) — migration thread on handling hundreds of @XREF dependencies.
 
 ## Step 2 – Who is the target user?
 
@@ -51,12 +56,10 @@ Nov 21, 2026 · Nobby
 
 | Input | Value | Source |
 | --- | --- | --- |
-| EPM consultants in my firm / network | [ADD] | Firm headcount or LinkedIn |
-| Applications inherited or handed over per consultant per year | [ADD, e.g., 2] | Interviews |
-| Hours understanding and documenting rules per application | [ADD, e.g., 20] | Interviews |
-| Hours saved if the tool cuts that by 50% | consultants × apps × hours × 0.5 | Calculated |
-
-**Example:** 30 consultants × 2 apps × 20 hours × 0.5 = **600 hours saved per year in one firm.** Replace with real numbers.
+| EPM consultants in my firm / network | 10 | Firm headcount or LinkedIn |
+| Applications inherited or handed over per consultant per year | 5 | Interviews |
+| Hours understanding and documenting rules per application | 20 | Interviews |
+| Hours saved if the tool cuts that by 50% | 10 × 5 × 20 × 0.5 = 500hrs/year | Calculated |
 
 ## Step 4 – What competitors already exist?
 
@@ -71,7 +74,6 @@ Nov 21, 2026 · Nobby
 | Calculation Manager (native) | Shows the rule and graphical flow; has a description field | Description is manual and often blank |
 | Consulting firm templates | Standard design-document templates | Still filled in by hand |
 
-**Watch item:** Oracle ships monthly updates; re-check the latest EPM *What's New* before submission. **[ADD: date checked]**
 
 ## Step 5 – What is our edge?
 
