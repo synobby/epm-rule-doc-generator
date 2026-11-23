@@ -97,11 +97,13 @@ def run(
         except ValidationError:
             telemetry.record("rejected_input", timer.elapsed, masked=mask, provider=provider_name)
             raise
-        except llm_client.LLMError:
-            telemetry.record("ai_error", timer.elapsed, masked=mask, provider=provider_name)
+        except llm_client.LLMError as exc:
+            telemetry.record("ai_error", timer.elapsed, masked=mask, provider=provider_name,
+                             error_type=exc.error_type)
             raise
-        except Exception:
-            telemetry.record("error", timer.elapsed, masked=mask, provider=provider_name)
+        except Exception as exc:
+            telemetry.record("error", timer.elapsed, masked=mask, provider=provider_name,
+                             error_type=type(exc).__name__)
             raise
     telemetry.record(
         "success", timer.seconds, result.facts.rule_type, result.facts.line_count, mask, provider_name

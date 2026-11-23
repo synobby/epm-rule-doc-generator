@@ -1,6 +1,6 @@
 # EPM Business Rule Documentation Generator
 
-![CI](https://github.com/synobby/epm-rule-doc-generator/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/<your-username>/epm-rule-doc-generator/actions/workflows/ci.yml/badge.svg)
 
 Turns an Oracle EPM business rule (Essbase / Planning calc script or Groovy) into a **structured technical document** and a **line-by-line "Teach me" explanation**, with export to Markdown and Word. Built for EPM consultants who inherit undocumented applications.
 
@@ -52,7 +52,7 @@ With no API key in `.env`, the app runs in **demo mode**: parsed facts are real,
 | Variable | Default | Purpose |
 |---|---|---|
 | `LLM_PROVIDER` | `gemini` in `render.yaml` | `gemini` (free tier), `groq` (free tier), `anthropic`, `openai` or `mock` |
-| `LLM_MODEL` | `gemini-3.5-flash` | Exact model ID for the chosen provider |
+| `LLM_MODEL` | `gemini-3.5-flash-lite` | Exact model ID for the chosen provider |
 | `LLM_BASE_URL` | – | Optional: custom OpenAI-compatible endpoint |
 | `LLM_API_KEY` | – | API key (secret; never commit) |
 | `MAX_LINES` | `2000` | Maximum rule length |
@@ -75,7 +75,7 @@ With no API key in `.env`, the app runs in **demo mode**: parsed facts are real,
 ## Tests and CI
 
 ```bash
-pytest -q        # 37 tests, no API key needed (AI is mocked)
+pytest -q        # 44 tests, no API key needed (AI is mocked)
 ruff check .     # lint
 ```
 

@@ -56,6 +56,7 @@ def record(
     line_count: int | None = None,
     masked: bool = False,
     provider: str | None = None,
+    error_type: str | None = None,
 ) -> dict:
     """Log one generation event. outcome: 'success' | 'rejected_input' | 'ai_error' | 'error'."""
     event = {
@@ -68,6 +69,8 @@ def record(
         "masked": masked,
         "provider": provider,
     }
+    if error_type:
+        event["error_type"] = error_type  # e.g. rate_limit, auth, timeout (never rule text)
     logger.info(json.dumps(event))
 
     with _lock:

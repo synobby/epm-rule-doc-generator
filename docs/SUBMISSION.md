@@ -11,7 +11,7 @@
 | Usable web UI | ✅ | `app.py` (Streamlit) |
 | Deployed to a live URL | 👤 | Render — see README "Deploy to Render" |
 | Public GitHub repo | 👤 | Create it as **Public** |
-| GitHub Actions workflow | ✅ | `.github/workflows/ci.yml` (secret scan + lint + 37 tests) |
+| GitHub Actions workflow | ✅ | `.github/workflows/ci.yml` (secret scan + lint + 44 tests) |
 | No hardcoded secrets | ✅ | Env vars only; `.env` ignored; gitleaks in CI |
 | Proper README | ✅ / 👤 | `README.md` — add your live URL, demo link, issue link |
 
@@ -38,7 +38,7 @@
 | Scaffold the application | ✅ | Whole repo |
 | Core AI feature | ✅ | `core/pipeline.py` |
 | ≥ 5 meaningful commits | 👤 | Use the commit sequence in README "Commit plan" |
-| ≥ 3 unit tests | ✅ | 37 tests in `tests/` |
+| ≥ 3 unit tests | ✅ | 44 tests in `tests/` |
 | Secrets and input validation | ✅ | `core/validator.py`, gitleaks job, `.gitignore` |
 
 ## Phase 4 – Deploy

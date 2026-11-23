@@ -24,7 +24,43 @@ MAX_OUTPUT_TOKENS = 8000
 
 
 class LLMError(RuntimeError):
-    """Raised when the LLM cannot return a valid answer."""
+    """Raised when the LLM cannot return a valid answer. `error_type` is logged (no rule text)."""
+
+    def __init__(self, message: str, error_type: str = "llm_error"):
+        super().__init__(message)
+        self.error_type = error_type
+
+
+def explain_provider_error(exc: Exception) -> LLMError:
+    """Turn an SDK exception (Anthropic, OpenAI, Gemini, Groq) into a clear user message.
+
+    Works by status code / class name, so it needs no provider-specific imports.
+    """
+    status = getattr(exc, "status_code", None)
+    name = type(exc).__name__
+    if status == 429 or name == "RateLimitError":
+        return LLMError(
+            "The AI provider's usage limit was reached (free tiers allow a limited number of "
+            "requests per minute and per day). Wait a minute and try again; if it keeps happening, "
+            "the daily quota is used up and resets at midnight Pacific time (about 3–4 pm in Manila).",
+            "rate_limit",
+        )
+    if status in (401, 403) or name in ("AuthenticationError", "PermissionDeniedError"):
+        return LLMError("The AI provider rejected the API key. Check LLM_API_KEY in the host settings.",
+                        "auth")
+    if status == 404 or name == "NotFoundError":
+        return LLMError("The AI model name was not found. Check LLM_MODEL matches a model ID your "
+                        "provider currently offers.", "model_not_found")
+    if "Timeout" in name:
+        return LLMError("The AI took too long to answer. Try again, or try a shorter rule.", "timeout")
+    if "Connection" in name:
+        return LLMError("Could not reach the AI provider. Try again in a moment.", "connection")
+    if status == 400 or name == "BadRequestError":
+        return LLMError("The AI provider rejected the request (bad request). Check LLM_MODEL and the "
+                        "provider settings.", "bad_request")
+    if status and status >= 500:
+        return LLMError("The AI provider had a temporary problem. Try again in a minute.", "provider_down")
+    return LLMError("Something went wrong while contacting the AI. Please try again.", name)
 
 
 class Provider(Protocol):
@@ -52,7 +88,8 @@ class AnthropicProvider:
 # Free / low-cost providers that speak the OpenAI API format: only the address differs.
 OPENAI_COMPATIBLE = {
     "openai": (None, "gpt-4o-mini"),
-    "gemini": ("https://generativelanguage.googleapis.com/v1beta/openai/", "gemini-3.5-flash"),
+    # Flash-Lite: free tier allows far more requests/day than Flash, and it is faster.
+    "gemini": ("https://generativelanguage.googleapis.com/v1beta/openai/", "gemini-3.5-flash-lite"),
     "groq": ("https://api.groq.com/openai/v1", "openai/gpt-oss-120b"),
 }
 
@@ -64,7 +101,8 @@ class OpenAIProvider:
         import openai
 
         self.model = model
-        self.client = openai.OpenAI(api_key=api_key, timeout=timeout, base_url=base_url)
+        # max_retries=1: a quick retry on a blip, without burning a small free-tier quota
+        self.client = openai.OpenAI(api_key=api_key, timeout=timeout, base_url=base_url, max_retries=1)
 
     def complete(self, system: str, user: str) -> str:
         response = self.client.chat.completions.create(
@@ -165,7 +203,12 @@ def generate(system: str, user: str, schema: type[T], provider: Provider | None 
     prompt = user
     last_error: Exception | None = None
     for _attempt in range(2):
-        raw = provider.complete(system, prompt)
+        try:
+            raw = provider.complete(system, prompt)
+        except LLMError:
+            raise
+        except Exception as exc:  # SDK/network errors -> clear message
+            raise explain_provider_error(exc) from exc
         try:
             result = schema.model_validate_json(_extract_json(raw))
             _cache[key] = result
@@ -178,4 +221,6 @@ def generate(system: str, user: str, schema: type[T], provider: Provider | None 
                 + str(exc)[:1500]
                 + "\nReturn only the corrected JSON object."
             )
-    raise LLMError("The AI returned an answer in the wrong format twice. Please try again.") from last_error
+    raise LLMError(
+        "The AI returned an answer in the wrong format twice. Please try again.", "bad_format"
+    ) from last_error
