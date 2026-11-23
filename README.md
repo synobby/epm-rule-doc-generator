@@ -1,6 +1,6 @@
 # EPM Business Rule Documentation Generator
 
-![CI](https://github.com/<your-username>/epm-rule-doc-generator/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/synobby/epm-rule-doc-generator/actions/workflows/ci.yml/badge.svg)
 
 Turns an Oracle EPM business rule (Essbase / Planning calc script or Groovy) into a **structured technical document** and a **line-by-line "Teach me" explanation**, with export to Markdown and Word. Built for EPM consultants who inherit undocumented applications.
 
