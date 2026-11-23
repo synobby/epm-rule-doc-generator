@@ -1,0 +1,17 @@
+[project]
+name = "epm-rule-doc-generator"
+version = "0.1.0"
+description = "Turns Oracle EPM business rules into structured technical documentation."
+requires-python = ">=3.12"
+
+[tool.ruff]
+line-length = 110
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+# B905: zip(strict=) and UP047: new generic syntax -- kept simple for readability
+ignore = ["B905", "UP047"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
