@@ -1,0 +1,6 @@
+[server]
+headless = true
+maxUploadSize = 1   # MB - business rules are small text files
+
+[browser]
+gatherUsageStats = false
