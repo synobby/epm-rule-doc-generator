@@ -190,6 +190,18 @@ def is_demo_mode() -> bool:
     return isinstance(get_provider(), MockProvider)
 
 
+def config_problem() -> str | None:
+    """Return a friendly message if the AI settings are wrong (e.g. unknown provider), else None.
+
+    Lets the page show a clear notice instead of crashing with a traceback.
+    """
+    try:
+        get_provider()
+    except LLMError as exc:
+        return str(exc)
+    return None
+
+
 def _extract_json(raw: str) -> str:
     """Models sometimes wrap JSON in ```json fences; strip them."""
     raw = raw.strip()

@@ -77,7 +77,7 @@ With no API key in `.env`, the app runs in **demo mode**: parsed facts are real,
 ## Tests and CI
 
 ```bash
-pytest -q        # 48 tests, no API key needed (AI is mocked)
+pytest -q        # 50 tests, no API key needed (AI is mocked)
 ruff check .     # lint
 ```
 

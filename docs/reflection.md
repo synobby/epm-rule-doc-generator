@@ -9,7 +9,7 @@ As an Oracle EPM consultant, I often inherit applications whose business rules h
 1. **Validate before building.** My first idea, an AI variance commentary generator, failed the competitor step: Oracle already ships GenAI narratives in Narrative Reporting and Reports. Checking the release notes saved me from building something Oracle gives customers for free. Rule documentation had a clear gap.
 2. **Let code do the exact work and AI do the writing.** The parser finds FIX scopes, members and run-time prompts deterministically. The AI only explains. This made the output easier to trust and to test, and it lets the app flag members the AI mentions that are not in the rule.
 3. **Structured output beats chat.** Forcing the model to return JSON that matches a schema gave the same sections every time. A validation-and-retry step handled the occasional bad answer.
-4. **Specs and tests are worth it for a non-developer.** Writing `spec.md` first, plus 48 automated tests, let me change code with confidence. CLAUDE.md and `.cursorrules` kept AI coding tools inside the rules I set.
+4. **Specs and tests are worth it for a non-developer.** Writing `spec.md` first, plus 50 automated tests, let me change code with confidence. CLAUDE.md and `.cursorrules` kept AI coding tools inside the rules I set.
 
 ## Challenges
 - **Domain edge cases.** The first type detector treated `->` as Groovy, but in calc scripts it is the cross-dimensional operator. A unit test caught it, and I added it to the spec review.

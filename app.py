@@ -29,6 +29,10 @@ st.caption(
     "Paste an Essbase / Planning calc script or a Groovy rule. Get a structured technical "
     "document and a line-by-line explanation."
 )
+problem = llm_client.config_problem()
+if problem:
+    st.error(f"AI settings problem: {problem} Fix the environment variables on the host and redeploy.")
+    st.stop()
 if llm_client.is_demo_mode():
     st.info("Demo mode: no LLM API key is set, so AI sections show placeholders. "
             "Parsed facts are real. See README to add a key.")

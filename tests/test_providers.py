@@ -119,3 +119,16 @@ def test_reasoning_effort_not_sent_to_providers_that_reject_it(monkeypatch):
     p.client = type("Cl", (), {"chat": type("Ch", (), {"completions": FakeCompletions()})()})()
     p.complete("s", "u")
     assert "reasoning_effort" not in sent
+
+
+def test_bad_provider_name_gives_friendly_config_message(monkeypatch):
+    monkeypatch.setenv("LLM_PROVIDER", "not-a-provider")
+    monkeypatch.setenv("LLM_API_KEY", "test-key-not-real")
+    msg = llm_client.config_problem()
+    assert msg and "Unknown LLM_PROVIDER" in msg and "mistral" in msg
+
+
+def test_good_settings_have_no_config_problem(monkeypatch):
+    monkeypatch.setenv("LLM_PROVIDER", "mistral")
+    monkeypatch.setenv("LLM_API_KEY", "test-key-not-real")
+    assert llm_client.config_problem() is None

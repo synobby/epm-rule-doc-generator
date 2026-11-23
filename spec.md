@@ -125,7 +125,7 @@ Batch upload or LCM snapshots · HFM/FCCS rules · data maps and forms · depend
 
 ## 8. Test plan
 
-48 automated tests (`pytest -q`), all run in GitHub Actions with the mock provider.
+50 automated tests (`pytest -q`), all run in GitHub Actions with the mock provider.
 
 | Test | File | Pass condition |
 |---|---|---|
