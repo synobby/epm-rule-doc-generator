@@ -51,8 +51,10 @@ With no API key in `.env`, the app runs in **demo mode**: parsed facts are real,
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `LLM_PROVIDER` | `gemini` in `render.yaml` | `gemini` (free tier), `groq` (free tier), `anthropic`, `openai` or `mock` |
-| `LLM_MODEL` | `gemini-3.5-flash-lite` | Exact model ID for the chosen provider |
+| `LLM_PROVIDER` | `mistral` in `render.yaml` | `mistral` (free), `groq` (free), `gemini` (free), `openrouter` (free models), `anthropic`, `openai` or `mock` |
+| `LLM_MODEL` | `mistral-small-latest` | Exact model ID for the chosen provider |
+| `LLM_REASONING_EFFORT` | `low` | Optional; used only by Groq, Gemini and OpenAI |
+| `LLM_MAX_OUTPUT_TOKENS` | `6000` | Cap on each AI answer |
 | `LLM_BASE_URL` | – | Optional: custom OpenAI-compatible endpoint |
 | `LLM_API_KEY` | – | API key (secret; never commit) |
 | `MAX_LINES` | `2000` | Maximum rule length |
@@ -75,7 +77,7 @@ With no API key in `.env`, the app runs in **demo mode**: parsed facts are real,
 ## Tests and CI
 
 ```bash
-pytest -q        # 44 tests, no API key needed (AI is mocked)
+pytest -q        # 48 tests, no API key needed (AI is mocked)
 ruff check .     # lint
 ```
 

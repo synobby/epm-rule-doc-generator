@@ -56,8 +56,8 @@ It is not a chatbot: rule in → structured document out.
 ## 5. AI module design
 
 ### 5.1 Model and settings
-- **Provider:** configurable via env var `LLM_PROVIDER`: `gemini` or `groq` (free tiers, via their OpenAI-compatible endpoints), `anthropic`, `openai`, or `mock` for tests and demo mode.
-- **Model:** a small, fast model (deployed default `gemini-3.5-flash-lite`, chosen for its higher free daily quota; e.g. `claude-haiku-5-5` on Anthropic), set by `LLM_MODEL`.
+- **Provider:** configurable via env var `LLM_PROVIDER`: `mistral`, `groq`, `gemini` or `openrouter` (free tiers, via OpenAI-compatible endpoints), `anthropic`, `openai`, or `mock` for tests and demo mode.
+- **Model:** a small, fast model (deployed default `mistral-small-latest` on Mistral's free Experiment plan; e.g. `claude-haiku-5-5` on Anthropic), set by `LLM_MODEL`.
 - **Temperature:** 0.2 (consistent, factual output).
 - **Max output tokens:** 8,000.
 - **Two calls per rule:** (1) documentation, (2) "Teach me". Run in parallel.
@@ -125,7 +125,7 @@ Batch upload or LCM snapshots · HFM/FCCS rules · data maps and forms · depend
 
 ## 8. Test plan
 
-44 automated tests (`pytest -q`), all run in GitHub Actions with the mock provider.
+48 automated tests (`pytest -q`), all run in GitHub Actions with the mock provider.
 
 | Test | File | Pass condition |
 |---|---|---|
@@ -167,3 +167,5 @@ The v0.1 spec was reviewed against the first working build (code walkthrough + r
 | 9 | Test plan listed planned tests, not actual ones | §8 now lists the implemented tests |
 | 10 | Paid API key is a barrier for a student project | §5.1: free Gemini / Groq providers via OpenAI-compatible endpoints (`tests/test_providers.py`) |
 | 11 | Live test: generic "Something went wrong" error, most likely the 20-requests-per-day free Gemini Flash quota | Provider errors classified (rate limit, auth, model not found, timeout) with clear messages and `error_type` in logs; default model switched to Flash-Lite |
+| 12 | Live test on Gemini free tier: ~70 s per run, then provider server errors | Default provider switched to Groq (fast, free); optional `LLM_REASONING_EFFORT` and `LLM_MAX_OUTPUT_TOKENS` settings |
+| 13 | Groq not usable for the author's account | Added Mistral (free Experiment plan, now the default) and OpenRouter free models; `reasoning_effort` sent only to providers that accept it |

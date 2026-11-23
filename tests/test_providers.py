@@ -8,6 +8,8 @@ from core import llm_client
     [
         ("gemini", "generativelanguage.googleapis.com", "gemini-3.5-flash-lite"),
         ("groq", "api.groq.com", "openai/gpt-oss-120b"),
+        ("mistral", "api.mistral.ai", "mistral-small-latest"),
+        ("openrouter", "openrouter.ai", "openrouter/free"),
     ],
 )
 def test_free_providers_use_openai_compatible_endpoint(monkeypatch, provider, host, model):
@@ -73,3 +75,47 @@ def test_generate_wraps_sdk_errors():
     with pytest.raises(llm_client.LLMError) as info:
         llm_client.generate("s", "u", llm_client.BaseModel, Failing())
     assert info.value.error_type == "rate_limit"
+
+
+def test_reasoning_effort_is_sent_only_when_set(monkeypatch):
+    sent = {}
+
+    class FakeCompletions:
+        def create(self, **kwargs):
+            sent.update(kwargs)
+
+            class R:
+                choices = [type("C", (), {"message": type("M", (), {"content": "{}"})()})()]
+            return R()
+
+    p = llm_client.OpenAIProvider("m", "k", 5, "https://api.groq.com/openai/v1")
+    p.client = type("Cl", (), {"chat": type("Ch", (), {"completions": FakeCompletions()})()})()
+
+    monkeypatch.setattr(llm_client, "REASONING_EFFORT", None)
+    p.complete("s", "u")
+    assert "reasoning_effort" not in sent
+
+    monkeypatch.setattr(llm_client, "REASONING_EFFORT", "low")
+    p.complete("s", "u")
+    assert sent["reasoning_effort"] == "low"
+
+
+def test_reasoning_effort_not_sent_to_providers_that_reject_it(monkeypatch):
+    sent = {}
+
+    class FakeCompletions:
+        def create(self, **kwargs):
+            sent.update(kwargs)
+
+            class R:
+                choices = [type("C", (), {"message": type("M", (), {"content": "{}"})()})()]
+            return R()
+
+    monkeypatch.setenv("LLM_PROVIDER", "mistral")
+    monkeypatch.setenv("LLM_API_KEY", "test-key-not-real")
+    monkeypatch.delenv("LLM_MODEL", raising=False)
+    monkeypatch.setattr(llm_client, "REASONING_EFFORT", "low")
+    p = llm_client.get_provider()
+    p.client = type("Cl", (), {"chat": type("Ch", (), {"completions": FakeCompletions()})()})()
+    p.complete("s", "u")
+    assert "reasoning_effort" not in sent

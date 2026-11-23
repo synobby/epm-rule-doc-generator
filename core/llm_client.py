@@ -20,7 +20,9 @@ from pydantic import BaseModel, ValidationError
 T = TypeVar("T", bound=BaseModel)
 
 TEMPERATURE = 0.2
-MAX_OUTPUT_TOKENS = 8000
+MAX_OUTPUT_TOKENS = int(os.getenv("LLM_MAX_OUTPUT_TOKENS", "8000"))
+# Optional: "low" makes reasoning models (gpt-oss on Groq, Gemini) answer faster. Unset = provider default.
+REASONING_EFFORT = os.getenv("LLM_REASONING_EFFORT", "").strip() or None
 
 
 class LLMError(RuntimeError):
@@ -86,31 +88,41 @@ class AnthropicProvider:
 
 
 # Free / low-cost providers that speak the OpenAI API format: only the address differs.
+# name: (base_url, default model, accepts the `reasoning_effort` setting)
 OPENAI_COMPATIBLE = {
-    "openai": (None, "gpt-4o-mini"),
+    "openai": (None, "gpt-4o-mini", True),
     # Flash-Lite: free tier allows far more requests/day than Flash, and it is faster.
-    "gemini": ("https://generativelanguage.googleapis.com/v1beta/openai/", "gemini-3.5-flash-lite"),
-    "groq": ("https://api.groq.com/openai/v1", "openai/gpt-oss-120b"),
+    "gemini": ("https://generativelanguage.googleapis.com/v1beta/openai/", "gemini-3.5-flash-lite", True),
+    "groq": ("https://api.groq.com/openai/v1", "openai/gpt-oss-120b", True),
+    # Mistral free "Experiment" plan: no card, phone verification; generous token allowance.
+    "mistral": ("https://api.mistral.ai/v1", "mistral-small-latest", False),
+    # OpenRouter ":free" models: no card; small daily request allowance; models rotate.
+    "openrouter": ("https://openrouter.ai/api/v1", "openrouter/free", False),
 }
 
 
 class OpenAIProvider:
     """OpenAI, or any OpenAI-compatible service (Gemini, Groq) via base_url."""
 
-    def __init__(self, model: str, api_key: str, timeout: float, base_url: str | None = None):
+    def __init__(self, model: str, api_key: str, timeout: float, base_url: str | None = None,
+                 supports_reasoning_effort: bool = True):
         import openai
 
         self.model = model
+        self.supports_reasoning_effort = supports_reasoning_effort
         # max_retries=1: a quick retry on a blip, without burning a small free-tier quota
         self.client = openai.OpenAI(api_key=api_key, timeout=timeout, base_url=base_url, max_retries=1)
 
     def complete(self, system: str, user: str) -> str:
+        use_effort = REASONING_EFFORT and self.supports_reasoning_effort
+        extra = {"reasoning_effort": REASONING_EFFORT} if use_effort else {}
         response = self.client.chat.completions.create(
             model=self.model,
             temperature=TEMPERATURE,
             max_tokens=MAX_OUTPUT_TOKENS,
             response_format={"type": "json_object"},
             messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
+            **extra,
         )
         return response.choices[0].message.content or ""
 
@@ -166,10 +178,12 @@ def get_provider() -> Provider:
     if name == "anthropic":
         return AnthropicProvider(os.getenv("LLM_MODEL", "claude-haiku-5-5"), api_key, timeout)
     if name in OPENAI_COMPATIBLE:
-        default_url, default_model = OPENAI_COMPATIBLE[name]
+        default_url, default_model, effort_ok = OPENAI_COMPATIBLE[name]
         base_url = os.getenv("LLM_BASE_URL") or default_url
-        return OpenAIProvider(os.getenv("LLM_MODEL", default_model), api_key, timeout, base_url)
-    raise LLMError(f"Unknown LLM_PROVIDER '{name}'. Use anthropic, gemini, groq, openai or mock.")
+        return OpenAIProvider(os.getenv("LLM_MODEL", default_model), api_key, timeout, base_url, effort_ok)
+    raise LLMError(
+        f"Unknown LLM_PROVIDER '{name}'. Use anthropic, gemini, groq, mistral, openrouter, openai or mock."
+    )
 
 
 def is_demo_mode() -> bool:
