@@ -12,9 +12,9 @@ services:
       - key: PYTHON_VERSION
         value: "3.12.7"
       - key: LLM_PROVIDER
-        value: anthropic
+        value: gemini           # free tier; or anthropic / groq / openai
       - key: LLM_MODEL
-        value: claude-haiku-5-5
+        value: gemini-3.5-flash # copy the exact model ID from Google AI Studio
       - key: LLM_API_KEY
         sync: false             # you type the secret in the Render dashboard; never commit it
       - key: MAX_LINES

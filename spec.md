@@ -56,8 +56,8 @@ It is not a chatbot: rule in → structured document out.
 ## 5. AI module design
 
 ### 5.1 Model and settings
-- **Provider:** configurable via env var `LLM_PROVIDER` (`anthropic`, `openai`, or `mock` for tests and demo mode).
-- **Model:** a small, fast model (e.g., `claude-haiku-5-5`), set by `LLM_MODEL`.
+- **Provider:** configurable via env var `LLM_PROVIDER`: `gemini` or `groq` (free tiers, via their OpenAI-compatible endpoints), `anthropic`, `openai`, or `mock` for tests and demo mode.
+- **Model:** a small, fast model (deployed default `gemini-3.5-flash`; e.g. `claude-haiku-5-5` on Anthropic), set by `LLM_MODEL`.
 - **Temperature:** 0.2 (consistent, factual output).
 - **Max output tokens:** 8,000.
 - **Two calls per rule:** (1) documentation, (2) "Teach me". Run in parallel.
@@ -125,7 +125,7 @@ Batch upload or LCM snapshots · HFM/FCCS rules · data maps and forms · depend
 
 ## 8. Test plan
 
-33 automated tests (`pytest -q`), all run in GitHub Actions with the mock provider.
+37 automated tests (`pytest -q`), all run in GitHub Actions with the mock provider.
 
 | Test | File | Pass condition |
 |---|---|---|
@@ -139,6 +139,7 @@ Batch upload or LCM snapshots · HFM/FCCS rules · data maps and forms · depend
 | LLM retry once, fail after two bad answers, code fences stripped | `test_llm_and_pipeline.py` | As stated |
 | Full pipeline (with and without masking) and exporters | `test_llm_and_pipeline.py` | All sections present; no tokens left |
 | Monitoring counts and logs; **logs contain no rule text** | `test_telemetry.py` | As stated |
+| Gemini / Groq endpoints, model override, demo fallback | `test_providers.py` | As stated |
 | Accuracy on 5 sample rules | Manual review | Average reviewer score ≥ 4/5 |
 
 Sample rules live in `tests/samples/` and use Oracle sample-application style names only (no client data).
@@ -163,4 +164,5 @@ The v0.1 spec was reviewed against the first working build (code walkthrough + r
 | 6 | v0.1 did not say the extracted facts sent to the AI must also be masked; otherwise names would leak through them | §5.1: parser re-run on masked text |
 | 7 | Cross-check and embedded-FIX line numbers have limits not stated | §5.5 and §6.3 now state them |
 | 8 | Recommended stack is Next.js + Vercel | Kept Python + Streamlit + Render: faster to learn and ship for a non-developer; core logic is UI-independent so a Next.js front end can be added in v2 (see `architecture.md` §5, §9) |
-| 9 | Test plan listed planned tests, not actual ones | §8 now lists the 33 implemented tests |
+| 9 | Test plan listed planned tests, not actual ones | §8 now lists the implemented tests |
+| 10 | Paid API key is a barrier for a student project | §5.1: free Gemini / Groq providers via OpenAI-compatible endpoints (`tests/test_providers.py`) |

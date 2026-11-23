@@ -51,8 +51,9 @@ With no API key in `.env`, the app runs in **demo mode**: parsed facts are real,
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `LLM_PROVIDER` | `anthropic` | `anthropic`, `openai` or `mock` |
-| `LLM_MODEL` | `claude-haiku-5-5` | Model name for the chosen provider |
+| `LLM_PROVIDER` | `gemini` in `render.yaml` | `gemini` (free tier), `groq` (free tier), `anthropic`, `openai` or `mock` |
+| `LLM_MODEL` | `gemini-3.5-flash` | Exact model ID for the chosen provider |
+| `LLM_BASE_URL` | – | Optional: custom OpenAI-compatible endpoint |
 | `LLM_API_KEY` | – | API key (secret; never commit) |
 | `MAX_LINES` | `2000` | Maximum rule length |
 | `WARN_LINES` | `1000` | Show a warning above this length |
@@ -74,7 +75,7 @@ With no API key in `.env`, the app runs in **demo mode**: parsed facts are real,
 ## Tests and CI
 
 ```bash
-pytest -q        # 33 tests, no API key needed (AI is mocked)
+pytest -q        # 37 tests, no API key needed (AI is mocked)
 ruff check .     # lint
 ```
 
@@ -96,7 +97,7 @@ git add core/validator.py core/detector.py core/schemas.py && git commit -m "Add
 git add core/parser_calc.py core/parser_groovy.py core/masker.py && git commit -m "Add calc script and Groovy parsers with member masking"
 git add core/ && git commit -m "Add LLM client, prompts, cross-checks, exporters, pipeline and monitoring"
 git add app.py .streamlit/ && git commit -m "Add Streamlit UI with usage sidebar"
-git add tests/ pyproject.toml requirements.txt .github/ && git commit -m "Add 33 tests and GitHub Actions CI with secret scanning"
+git add tests/ pyproject.toml requirements.txt .github/ && git commit -m "Add tests and GitHub Actions CI with secret scanning"
 git add render.yaml .env.example && git commit -m "Add Render deployment config and env template"
 git remote add origin https://github.com/<your-username>/epm-rule-doc-generator.git
 git push -u origin main

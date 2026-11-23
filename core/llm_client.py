@@ -49,12 +49,22 @@ class AnthropicProvider:
         return "".join(block.text for block in response.content if block.type == "text")
 
 
+# Free / low-cost providers that speak the OpenAI API format: only the address differs.
+OPENAI_COMPATIBLE = {
+    "openai": (None, "gpt-4o-mini"),
+    "gemini": ("https://generativelanguage.googleapis.com/v1beta/openai/", "gemini-3.5-flash"),
+    "groq": ("https://api.groq.com/openai/v1", "openai/gpt-oss-120b"),
+}
+
+
 class OpenAIProvider:
-    def __init__(self, model: str, api_key: str, timeout: float):
+    """OpenAI, or any OpenAI-compatible service (Gemini, Groq) via base_url."""
+
+    def __init__(self, model: str, api_key: str, timeout: float, base_url: str | None = None):
         import openai
 
         self.model = model
-        self.client = openai.OpenAI(api_key=api_key, timeout=timeout)
+        self.client = openai.OpenAI(api_key=api_key, timeout=timeout, base_url=base_url)
 
     def complete(self, system: str, user: str) -> str:
         response = self.client.chat.completions.create(
@@ -117,9 +127,11 @@ def get_provider() -> Provider:
         return MockProvider()
     if name == "anthropic":
         return AnthropicProvider(os.getenv("LLM_MODEL", "claude-haiku-5-5"), api_key, timeout)
-    if name == "openai":
-        return OpenAIProvider(os.getenv("LLM_MODEL", "gpt-4o-mini"), api_key, timeout)
-    raise LLMError(f"Unknown LLM_PROVIDER '{name}'. Use anthropic, openai or mock.")
+    if name in OPENAI_COMPATIBLE:
+        default_url, default_model = OPENAI_COMPATIBLE[name]
+        base_url = os.getenv("LLM_BASE_URL") or default_url
+        return OpenAIProvider(os.getenv("LLM_MODEL", default_model), api_key, timeout, base_url)
+    raise LLMError(f"Unknown LLM_PROVIDER '{name}'. Use anthropic, gemini, groq, openai or mock.")
 
 
 def is_demo_mode() -> bool:
