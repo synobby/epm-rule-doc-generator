@@ -1,0 +1,31 @@
+# Cursor rules — EPM Business Rule Documentation Generator
+# Full context: spec.md, architecture.md, CLAUDE.md
+
+You are working on a Python 3.12 Streamlit app that documents Oracle EPM business rules
+(Essbase/Planning calc scripts and Groovy) for EPM consultants.
+
+## Architecture
+- app.py = Streamlit UI only. Put all logic in core/.
+- Pipeline: validator -> detector -> parser -> (masker) -> llm_client -> schema check -> checks -> exporters.
+- core/pipeline.py orchestrates; keep that order.
+
+## Must
+- Extract exact facts (FIX blocks, members, run-time prompts) with code in core/parser_*.py, not with the LLM.
+- Validate every LLM response with the Pydantic models in core/schemas.py.
+- Read secrets only from environment variables (LLM_API_KEY, LLM_PROVIDER, LLM_MODEL).
+- Log metadata only via core/telemetry.py (never rule text, never API keys).
+- Add or update a pytest test for every logic change; tests must use the mock provider.
+- Keep functions small, typed and documented; run `ruff check .` and `pytest -q`.
+
+## Must not
+- Hardcode API keys, URLs with tokens, or client data.
+- Add a chatbot / free-text chat interface (the product is structured output only).
+- Store rule text to disk, a database or logs.
+- Call a real LLM inside tests or CI.
+- Add new dependencies without updating requirements.txt and explaining why.
+
+## Domain notes
+- Calc script cross-dimensional operator "->" is NOT Groovy; detector must not treat it as such.
+- FIX ... ENDFIX nest; track depth with a stack. Comments /* */ and // must not shift line numbers.
+- Run-time prompts look like {Variable} in calc scripts and rtps.Variable in Groovy.
+- Input limit: 2,000 lines (warning above 1,000).
